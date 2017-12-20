@@ -1,0 +1,43 @@
+# Integration tests for aggregation scripts
+#
+setup:
+    - do:
+        indices.create:
+            index: test_index
+            body:
+                settings:
+                    index.number_of_shards: 1
+                    index.number_of_replicas: 0
+                mappings.type1:
+                      properties:
+                          type: {type: string, index: not_analyzed}
+                          value1.type: long
+                          value2.type: long
+
+    - do:
+        index: {index: transactions, type: stock, id: 1, body: {type: "sale", value1: 40, value2: 80}}
+
+    - do:
+        index: {index: transactions, type: stock, id: 2, body: {type: "cost", value1: 10}}
+
+    - do:
+        index: {index: transactions, type: stock, id: 3, body: {type: "cost", value1: 30, value2: 100}}
+
+    - do:
+        index: {index: transactions, type: stock, id: 4, body: {type: "sale", value1: 130, value2: 50}}
+
+    - do:
+        indices.refresh: {}
+
+---
+
+"Aggregation Test 1":
+    - do:
+        search:
+            body:
+                aggs:
+                    profit:
+                        scripted_metric: {"params": {"fields":['value1','value2']}, "init_script" : "weighted_avg_init", "map_script" : "weighted_avg_map",  "combine_script" : "weighted_avg_combine", "reduce_script" : "weighted_avg_reduce", "lang": "native"}
+
+    - match: { hits.total: 4}
+    - match: { aggregations.profit.value: 56.25}

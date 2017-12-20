@@ -6,7 +6,7 @@ based on https://github.com/imotov/elasticsearch-native-script-example
 
 run command `plugin install file:///path/to/elasticsearch-native-script-opentender-2.4.6.zip`
 
-Note: "plugin is the elasticsearch plugin helper binary"
+Note: "plugin is the elasticsearch plugin helper binary which comes with our elasticsearch 2.4.6 distribution"
 
 ## Deinstallation
 
@@ -18,7 +18,7 @@ The plugin can be built using mvn package command. The assembled .zip package ca
 
 ## About
 
-This is a ElasticSearch Native implementation of this groovy script aggregation. It's way faster.
+This is a Elasticsearch NativeScript implementation of this Groovy Script aggregation. It's way faster.
 
 ```javascript
 

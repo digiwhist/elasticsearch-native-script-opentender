@@ -50,9 +50,13 @@ public class ReduceScriptFactory implements NativeScriptFactory {
         public Object run() {
             double sum = 0;
             double count = 0;
-            for (ArrayList<Double> t : aggs) {
-                sum += t.get(0);
-                count += t.get(1);
+            if (aggs != null) {
+                for (ArrayList<Double> t : aggs) {
+                    if (t!=null && t.get(0) != null && t.get(1) != null) {
+                        sum += t.get(0);
+                        count += t.get(1);
+                    }
+                }
             }
             return count > 0 ? (sum / count) : null;
         }

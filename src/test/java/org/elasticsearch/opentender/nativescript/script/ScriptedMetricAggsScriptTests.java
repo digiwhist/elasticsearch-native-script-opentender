@@ -203,5 +203,56 @@ public class ScriptedMetricAggsScriptTests extends AbstractSearchScriptTestCase 
         assertThat((Double) searchResponse.getAggregations().get("profit").getProperty("value"), equalTo(57.5));
     }
 
+  @SuppressWarnings("unchecked")
+    @Test
+    public void testScriptedMetricNullAggs() throws Exception {
+
+        // Create a new lookup index
+        String stockMapping = XContentFactory.jsonBuilder().startObject().startObject("stock")
+                .startObject("properties")
+                .startObject("type").field("type", "string").field("index", "not_analyzed").endObject()
+                .startObject("value1").field("type", "long").endObject()
+                .startObject("value2").field("type", "long").endObject()
+                .endObject().endObject().endObject()
+                .string();
+
+        assertAcked(prepareCreate("transactions")
+                .addMapping("stock", stockMapping));
+
+        List<IndexRequestBuilder> indexBuilders = new ArrayList<IndexRequestBuilder>();
+
+        indexRandom(true, indexBuilders);
+
+        ArrayList<String> fields = new ArrayList<String>();
+        fields.add("value1");
+        fields.add("value2");
+        ArrayList<Number> weights = new ArrayList<Number>();
+        weights.add(1);
+        weights.add(1.0);
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("fields", fields);
+        params.put("weights", weights);
+
+        // Find profit from all transaction
+        SearchResponse searchResponse = client().prepareSearch("transactions")
+                .setTypes("stock")
+                .setQuery(matchAllQuery())
+                .setSize(0)
+                .addAggregation(scriptedMetric("profit")
+                        .params(params)
+                        .initScript(new Script("weighted_avg_init", ScriptService.ScriptType.INLINE, "native", null))
+                        .mapScript(new Script("weighted_avg_map", ScriptService.ScriptType.INLINE, "native", null))
+                        .combineScript(new Script("weighted_avg_combine", ScriptService.ScriptType.INLINE, "native", null))
+                        .reduceScript(new Script("weighted_avg_reduce", ScriptService.ScriptType.INLINE, "native", null)))
+                .execute().actionGet();
+
+        assertNoFailures(searchResponse);
+
+        // There should be 0 hits
+        assertHitCount(searchResponse, 0);
+
+        assertThat(searchResponse.getAggregations().get("profit").getProperty("value"), equalTo(null));
+    }
+
 
 }

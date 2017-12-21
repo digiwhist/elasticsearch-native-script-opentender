@@ -16,9 +16,11 @@ package org.elasticsearch.opentender.nativescript.script.weightedavg;
 
 import org.elasticsearch.common.Nullable;
 import org.elasticsearch.index.fielddata.ScriptDocValues;
+import org.elasticsearch.index.mapper.MappedFieldType;
 import org.elasticsearch.script.AbstractSearchScript;
 import org.elasticsearch.script.ExecutableScript;
 import org.elasticsearch.script.NativeScriptFactory;
+import org.elasticsearch.search.lookup.LeafDocLookup;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -54,18 +56,22 @@ public class MapScriptFactory implements NativeScriptFactory {
             Map<String, Object> agg = (Map<String, Object>) params.get("_agg");
             ArrayList<String> fields = (ArrayList<String>) params.get("fields");
             ArrayList<Number> weights = (ArrayList<Number>) params.get("weights");
+            LeafDocLookup doc = doc();
             if (fields != null) {
                 for (int i = 0; i < fields.size(); i++) {
                     String field = fields.get(i);
-                    ScriptDocValues.Longs value = (ScriptDocValues.Longs) doc().get(field);
-                    if (value.size() > 0) {
-                        double weight = 1;
-                        double val = value.getValue();
-                        if (weights != null) {
-                            weight = weights.get(i).doubleValue();
+                    MappedFieldType fieldType = doc.mapperService().smartNameFieldType(field);
+                    if (fieldType != null) {
+                        ScriptDocValues.Longs value = (ScriptDocValues.Longs) doc.get(field);
+                        if (value.size() > 0) {
+                            double weight = 1;
+                            double val = value.getValue();
+                            if (weights != null) {
+                                weight = weights.get(i).doubleValue();
+                            }
+                            sum += (val * weight);
+                            count += weight;
                         }
-                        sum += (val * weight);
-                        count += weight;
                     }
                 }
             }

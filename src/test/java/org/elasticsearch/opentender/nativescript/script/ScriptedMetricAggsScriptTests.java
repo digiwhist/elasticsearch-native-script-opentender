@@ -146,7 +146,7 @@ public class ScriptedMetricAggsScriptTests extends AbstractSearchScriptTestCase 
         assertThat((Double) searchResponse.getAggregations().get("profit").getProperty("value"), equalTo(56.25));
     }
 
-  @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     @Test
     public void testScriptedMetricWeighedAggs() throws Exception {
 

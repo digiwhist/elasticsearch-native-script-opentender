@@ -14,6 +14,7 @@
 
 package org.elasticsearch.opentender.nativescript.plugin;
 
+import org.elasticsearch.opentender.nativescript.script.WeightedAvgRangeScript;
 import org.elasticsearch.opentender.nativescript.script.weightedavg.CombineScriptFactory;
 import org.elasticsearch.opentender.nativescript.script.weightedavg.InitScriptFactory;
 import org.elasticsearch.opentender.nativescript.script.weightedavg.MapScriptFactory;
@@ -51,6 +52,9 @@ public class NativeScriptOpentenderPlugin extends Plugin {
     }
 
     public void onModule(ScriptModule module) {
+        //search scripts
+        module.registerScript(WeightedAvgRangeScript.SCRIPT_NAME, WeightedAvgRangeScript.Factory.class);
+        //aggregation scripts
         module.registerScript("weighted_avg_init", InitScriptFactory.class);
         module.registerScript("weighted_avg_map", MapScriptFactory.class);
         module.registerScript("weighted_avg_combine", CombineScriptFactory.class);

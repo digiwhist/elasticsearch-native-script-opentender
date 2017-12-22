@@ -35,6 +35,33 @@ public class MapScriptFactory implements NativeScriptFactory {
         return new MapScript(params);
     }
 
+    public final static Double calculateWeightedAverage(LeafDocLookup doc, ArrayList<String> fields, ArrayList<Number> weights) {
+        double sum = 0;
+        double count = 0;
+        if (fields != null) {
+            for (int i = 0; i < fields.size(); i++) {
+                String field = fields.get(i);
+                MappedFieldType fieldType = doc.mapperService().smartNameFieldType(field);
+                if (fieldType != null) {
+                    ScriptDocValues.Longs value = (ScriptDocValues.Longs) doc.get(field);
+                    if (value.size() > 0) {
+                        double weight = 1;
+                        double val = value.getValue();
+                        if (weights != null) {
+                            weight = weights.get(i).doubleValue();
+                        }
+                        sum += (val * weight);
+                        count += weight;
+                    }
+                }
+            }
+            if (count > 0) {
+                return (sum / count);
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean needsScores() {
         return false;
@@ -50,37 +77,14 @@ public class MapScriptFactory implements NativeScriptFactory {
 
         @Override
         public Object run() {
-            double sum = 0;
-            double count = 0;
-
             Map<String, Object> agg = (Map<String, Object>) params.get("_agg");
             ArrayList<String> fields = (ArrayList<String>) params.get("fields");
             ArrayList<Number> weights = (ArrayList<Number>) params.get("weights");
-            LeafDocLookup doc = doc();
-            if (fields != null) {
-                for (int i = 0; i < fields.size(); i++) {
-                    String field = fields.get(i);
-                    MappedFieldType fieldType = doc.mapperService().smartNameFieldType(field);
-                    if (fieldType != null) {
-                        ScriptDocValues.Longs value = (ScriptDocValues.Longs) doc.get(field);
-                        if (value.size() > 0) {
-                            double weight = 1;
-                            double val = value.getValue();
-                            if (weights != null) {
-                                weight = weights.get(i).doubleValue();
-                            }
-                            sum += (val * weight);
-                            count += weight;
-                        }
-                    }
-                }
-            }
-
-            if (count > 0) {
-                agg.put(InitScriptFactory.SUM_FIELD, (Double) agg.get(InitScriptFactory.SUM_FIELD) + (sum / count));
+            Double value = calculateWeightedAverage(doc(), fields, weights);
+            if (value != null) {
+                agg.put(InitScriptFactory.SUM_FIELD, (Double) agg.get(InitScriptFactory.SUM_FIELD) + value);
                 agg.put(InitScriptFactory.COUNT_FIELD, (Double) agg.get(InitScriptFactory.COUNT_FIELD) + 1);
             }
-
             return null;
         }
     }

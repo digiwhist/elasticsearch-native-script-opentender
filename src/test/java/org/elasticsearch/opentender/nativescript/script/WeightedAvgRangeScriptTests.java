@@ -46,8 +46,8 @@ public class WeightedAvgRangeScriptTests extends AbstractSearchScriptTestCase {
         String stockMapping = XContentFactory.jsonBuilder().startObject().startObject("stock")
                 .startObject("properties")
                 .startObject("type").field("type", "string").field("index", "not_analyzed").endObject()
-                .startObject("value1").field("type", "long").endObject()
-                .startObject("value2").field("type", "long").endObject()
+                .startObject("value1").field("type", "double").endObject()
+                .startObject("value2").field("type", "double").endObject()
                 .endObject().endObject().endObject()
                 .string();
 
@@ -99,8 +99,8 @@ public class WeightedAvgRangeScriptTests extends AbstractSearchScriptTestCase {
         String stockMapping = XContentFactory.jsonBuilder().startObject().startObject("stock")
                 .startObject("properties")
                 .startObject("type").field("type", "string").field("index", "not_analyzed").endObject()
-                .startObject("value1").field("type", "long").endObject()
-                .startObject("value2").field("type", "long").endObject()
+                .startObject("value1").field("type", "double").endObject()
+                .startObject("value2").field("type", "double").endObject()
                 .endObject().endObject().endObject()
                 .string();
 
@@ -151,8 +151,8 @@ public class WeightedAvgRangeScriptTests extends AbstractSearchScriptTestCase {
         String stockMapping = XContentFactory.jsonBuilder().startObject().startObject("stock")
                 .startObject("properties")
                 .startObject("type").field("type", "string").field("index", "not_analyzed").endObject()
-                .startObject("value1").field("type", "long").endObject()
-                .startObject("value2").field("type", "long").endObject()
+                .startObject("value1").field("type", "double").endObject()
+                .startObject("value2").field("type", "double").endObject()
                 .endObject().endObject().endObject()
                 .string();
 

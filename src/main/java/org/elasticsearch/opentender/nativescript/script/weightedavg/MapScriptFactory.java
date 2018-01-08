@@ -43,7 +43,7 @@ public class MapScriptFactory implements NativeScriptFactory {
                 String field = fields.get(i);
                 MappedFieldType fieldType = doc.mapperService().smartNameFieldType(field);
                 if (fieldType != null) {
-                    ScriptDocValues.Longs value = (ScriptDocValues.Longs) doc.get(field);
+                    ScriptDocValues.Doubles value = (ScriptDocValues.Doubles) doc.get(field);
                     if (value.size() > 0) {
                         double weight = 1;
                         double val = value.getValue();
